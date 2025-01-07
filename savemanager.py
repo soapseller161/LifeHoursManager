@@ -32,6 +32,7 @@ class SaveManager:
                 split = line.split(',')
                 line_date_str = split[0]
                 line_date = datetime.strptime(line_date_str, "%Y-%m-%d")
+                line_date = line_date.date()
                 line_attribute = split[1]
                 line_value = int(split[2])
 
@@ -52,7 +53,7 @@ class SaveManager:
     def get_attribute_notes(self, attribute: str, timedelta_in_days: int) -> [Note]:
         result = []
         start_date = datetime.today() - timedelta(days=timedelta_in_days)
-        start_date = datetime.combine(start_date, datetime.min.time())
+        start_date = start_date.date()
 
         for note in self.__notes:
             if note.date >= start_date and note.attribute == attribute:
@@ -65,7 +66,7 @@ class SaveManager:
         week_start_date = Week.get_current_week_start()
 
         for note in self.__notes:
-            if note.date.date() >= week_start_date:
+            if note.date >= week_start_date:
                 result.append(note)
 
         return result
