@@ -1,7 +1,7 @@
 import constants
 import os
 from datetime import datetime, date, timedelta
-from utilclasses import Note
+from utilclasses import Note, Week
 
 
 class SaveManager:
@@ -16,7 +16,7 @@ class SaveManager:
         if not os.path.exists(save_file_path):
             print(f"Save file does not exist. Creating one...")
             file = open(f'{constants.save_file_name}.txt', 'w', encoding='utf-8')
-            file.write("YYYY-MM-DD, <str attribute>, <int value>")
+            file.write("YYYY-MM-DD, <str attribute>, <int value>, <str note>")
             file.close()
 
         try:
@@ -34,7 +34,14 @@ class SaveManager:
                 line_date = datetime.strptime(line_date_str, "%Y-%m-%d")
                 line_attribute = split[1]
                 line_value = int(split[2])
-                self.__notes.append(Note(attribute=line_attribute, value=line_value, note_date=line_date))
+
+                if len(split) > 3:
+                    line_note = str(split[3])
+                else:
+                    line_note = ""
+
+                self.__notes.append(Note(attribute=line_attribute, value=line_value, note_date=line_date,
+                                         note=line_note))
         except Exception as ex:
             print(f"Failed to parse save file: {ex}")
             return
@@ -53,13 +60,19 @@ class SaveManager:
 
         return result
 
+    def get_week_notes(self) -> [Note]:
+        result = []
+        week_start_date = Week.get_current_week_start()
+
+        for note in self.__notes:
+            if note.date.date() >= week_start_date:
+                result.append(note)
+
+        return result
+
     def get_week_breakdown(self) -> str:
-        today = date.today()
-        weekday = today.weekday()
-        start_of_week = today - timedelta(days=weekday)
-        end_of_week = start_of_week + timedelta(days=6)
-        month_name = today.strftime("%B")
-        message = f"\nWeek {start_of_week.day} - {end_of_week.day} of {month_name}, {end_of_week.year} breakdown:\n"
+        weekday = date.today().weekday()
+        message = f"\n{Week.get_current_week_repr()} breakdown:\n"
 
         for attribute in constants.attributes:
             attribute_sum = 0
@@ -78,6 +91,16 @@ class SaveManager:
 
             message += attribute_breakdown
 
+        return message
+
+    def get_week_notes_repr(self) -> str:
+        message = f"\n{Week.get_current_week_repr()} summary:"
+        week_notes = self.get_week_notes()
+
+        for week_note in week_notes:
+            message += f"\n\t{week_note}"
+
+        message += f"\nTotal notes: <{len(week_notes)}>\n"
         return message
 
     def write_note(self, note: Note):

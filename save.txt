@@ -1,0 +1,2 @@
+YYYY-MM-DD, <str attribute>, <int value>, <str note>
+2025-01-07,Expense (₽),192783

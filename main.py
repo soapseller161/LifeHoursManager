@@ -15,7 +15,7 @@ class LifeHoursManager:
 
     @staticmethod
     def get_start_question() -> Question:
-        variants = ["Write attribute", "Get week breakdown"]
+        variants = ["Write attribute", "Get week breakdown", "Get week notes"]
 
         return Question(text="What do you want?", variants=variants)
 
@@ -57,10 +57,15 @@ class LifeHoursManager:
                 self.get_answer_to_question(LifeHoursManager.get_attribute_question()) - 1]
             print(f"Write value for {chosen_attribute}:")
             value = LifeHoursManager.get_int_input()
-            self.__save_manager.write_note(Note(attribute=chosen_attribute, value=value, note_date=date.today()))
+            print(f"Write note to record:")
+            note = input()
+            self.__save_manager.write_note(Note(attribute=chosen_attribute, value=value,
+                                                note_date=date.today(), note=note))
             print(f"Attribute <{chosen_attribute}> with value <{value}> has been written\n")
         elif answer == 2:
             print(self.__save_manager.get_week_breakdown())
+        elif answer == 3:
+            print(self.__save_manager.get_week_notes_repr())
         else:
             print("Answer is not supported")
 

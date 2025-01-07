@@ -1,5 +1,4 @@
-import constants
-from datetime import date
+from datetime import date, timedelta, datetime
 
 
 class Question:
@@ -21,10 +20,14 @@ class Question:
 
 
 class Note:
-    def __init__(self, attribute: str, value: int, note_date: date):
+    def __init__(self, attribute: str, value: int, note_date: date, note: str):
         self.__attribute = attribute
         self.__value = value
         self.__date = note_date
+        self.__note = note
+
+    def __str__(self):
+        return f"{self.__date.strftime('%A')}: {self.__attribute} {self.__value} {self.__note}"
 
     @property
     def attribute(self):
@@ -35,5 +38,32 @@ class Note:
         return self.__value
 
     @property
-    def date(self):
+    def date(self) -> date:
         return self.__date
+
+    @property
+    def note(self):
+        return self.__note
+
+
+class Week:
+    @staticmethod
+    def get_current_week_start() -> date:
+        today = date.today()
+        weekday = today.weekday()
+        start_date = today - timedelta(days=weekday)
+        start_date = datetime.combine(start_date, datetime.min.time())
+        start_date = start_date.date()
+        return start_date
+
+    @staticmethod
+    def get_current_week_end() -> date:
+        return Week.get_current_week_start() + timedelta(days=6)
+
+    @staticmethod
+    def get_current_week_repr() -> str:
+        today = date.today()
+        start_of_week = Week.get_current_week_start()
+        end_of_week = Week.get_current_week_end()
+        month_name = today.strftime("%B")
+        return f"Week {start_of_week.day} - {end_of_week.day} of {month_name}, {end_of_week.year}"
