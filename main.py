@@ -1,7 +1,9 @@
-from configmanager import ConfigManager
-from utilclasses import Question, Note
+import os
 from datetime import date
+
+from configmanager import ConfigManager
 from savemanager import SaveManager
+from utilclasses import Question, Note
 
 
 class LifeHoursManager:
@@ -76,5 +78,6 @@ class LifeHoursManager:
 
 
 if __name__ == '__main__':
+    os.system("cls")
     manager = LifeHoursManager()
     manager.resolve_new_request()
