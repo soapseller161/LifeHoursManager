@@ -1,12 +1,13 @@
+from configmanager import ConfigManager
 from utilclasses import Question, Note
 from datetime import date
 from savemanager import SaveManager
-import constants
 
 
 class LifeHoursManager:
     def __init__(self):
         self.__save_manager = SaveManager()
+        self.__config_manager = ConfigManager()
 
     @staticmethod
     def get_answer_to_question(question: Question) -> int:
@@ -40,12 +41,11 @@ class LifeHoursManager:
             except ValueError:
                 print("Please, input integer")
 
-    @staticmethod
-    def get_attribute_question() -> Question:
-        return Question(text="What attribute do you choose?", variants=constants.attributes)
+    def get_attribute_question(self) -> Question:
+        return Question(text="What attribute do you choose?", variants=self.__config_manager.get_attributes_names())
 
     def resolve_new_request(self) -> None:
-        if not self.__save_manager.was_loaded_successfully:
+        if not self.__save_manager.was_loaded_successfully or not self.__config_manager.was_loaded_successfully:
             print("Press <Enter> to exit")
             input()
             return
@@ -53,21 +53,24 @@ class LifeHoursManager:
         answer = self.get_answer_to_question(self.get_start_question())
 
         if answer == 1:
-            chosen_attribute = constants.attributes[
-                self.get_answer_to_question(LifeHoursManager.get_attribute_question()) - 1]
-            print(f"Write value for {chosen_attribute}:")
-            value = LifeHoursManager.get_int_input()
-            print(f"Write note to record:")
-            note = input()
-            self.__save_manager.write_note(Note(attribute=chosen_attribute, value=value,
-                                                note_date=date.today(), note=note))
-            print(f"Attribute <{chosen_attribute}> with value <{value}> has been written\n")
+            if len(self.__config_manager.get_attributes_names()) == 0:
+                print("No attributes in config file\n")
+            else:
+                chosen_attribute = self.__config_manager.get_attributes_names()[
+                    self.get_answer_to_question(self.get_attribute_question()) - 1]
+                print(f"Write value for {chosen_attribute}:")
+                value = LifeHoursManager.get_int_input()
+                print(f"Write note to record:")
+                note = input()
+                self.__save_manager.write_note(Note(attribute=chosen_attribute, value=value,
+                                                    note_date=date.today(), note=note))
+                print(f"Attribute <{chosen_attribute}> with value <{value}> has been written\n")
         elif answer == 2:
-            print(self.__save_manager.get_week_breakdown())
+            print(self.__save_manager.get_week_breakdown(attributes=self.__config_manager.attributes))
         elif answer == 3:
             print(self.__save_manager.get_week_notes_repr())
         else:
-            print("Answer is not supported")
+            print("Answer is not supported\n")
 
         self.resolve_new_request()
 

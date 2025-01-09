@@ -67,3 +67,17 @@ class Week:
         end_of_week = Week.get_current_week_end()
         month_name = today.strftime("%B")
         return f"Week {start_of_week.day} - {end_of_week.day} of {month_name}, {end_of_week.year}"
+
+
+class Attribute:
+    def __init__(self, name: str, norm: int):
+        self.__name = name
+        self.__norm = norm
+
+    @property
+    def name(self):
+        return self.__name
+
+    @property
+    def norm(self):
+        return self.__norm

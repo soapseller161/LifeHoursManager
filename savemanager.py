@@ -1,7 +1,7 @@
 import constants
 import os
 from datetime import datetime, date, timedelta
-from utilclasses import Note, Week
+from utilclasses import Note, Week, Attribute
 
 
 class SaveManager:
@@ -11,18 +11,18 @@ class SaveManager:
         self.load()
 
     def load(self) -> None:
-        save_file_path = f"{constants.save_file_name}.txt"
+        save_file_path = f"{constants.SAVE_FILE_NAME}.txt"
 
         if not os.path.exists(save_file_path):
             print(f"Save file does not exist. Creating one...")
-            file = open(f'{constants.save_file_name}.txt', 'w', encoding='utf-8')
+            file = open(f'{constants.SAVE_FILE_NAME}.txt', 'w', encoding='utf-8')
             file.write("YYYY-MM-DD, <str attribute>, <int value>, <str note>")
             file.close()
 
         try:
-            file_lines = open(f'{constants.save_file_name}.txt', 'r', encoding='utf-8').readlines()
+            file_lines = open(f'{constants.SAVE_FILE_NAME}.txt', 'r', encoding='utf-8').readlines()
         except Exception as ex:
-            print(f"Failed to open save file: {ex}")
+            print(f"{constants.RED}Failed to open save file: {ex}{constants.RESET}")
             return
 
         file_lines.pop(0)
@@ -44,11 +44,11 @@ class SaveManager:
                 self.__notes.append(Note(attribute=line_attribute, value=line_value, note_date=line_date,
                                          note=line_note))
         except Exception as ex:
-            print(f"Failed to parse save file: {ex}")
+            print(f"{constants.RED}Failed to parse save file: {ex}{constants.RESET}")
             return
 
         self.__is_loaded = True
-        print(f"Save file parsed successfully; loaded <{len(self.__notes)}> notes")
+        print(f"{constants.GREEN}Save file parsed successfully;{constants.RESET} loaded <{len(self.__notes)}> notes")
 
     def get_attribute_notes(self, attribute: str, timedelta_in_days: int) -> [Note]:
         result = []
@@ -71,11 +71,11 @@ class SaveManager:
 
         return result
 
-    def get_week_breakdown(self) -> str:
+    def get_week_breakdown(self, attributes: [Attribute]) -> str:
         weekday = date.today().weekday()
         message = f"\n{Week.get_current_week_repr()} breakdown:\n"
 
-        for attribute in constants.attributes:
+        for attribute in attributes:
             attribute_sum = 0
             notes_count = 0
 
@@ -83,7 +83,13 @@ class SaveManager:
                 attribute_sum += note.value
                 notes_count += 1
 
-            attribute_breakdown = f"\t{attribute}: {attribute_sum}, {notes_count} notes"
+            if attribute_sum < attribute.norm:
+                attribute_color = constants.YELLOW
+            else:
+                attribute_color = constants.GREEN
+
+            attribute_breakdown = (f"\t{attribute_color}{attribute.name}: {attribute_sum}/{attribute.norm}"
+                                   f"{constants.RESET}")
 
             if notes_count > 0:
                 attribute_breakdown += f", {round(attribute_sum/notes_count)} avg"
@@ -105,7 +111,7 @@ class SaveManager:
         return message
 
     def write_note(self, note: Note):
-        with open(f'{constants.save_file_name}.txt', 'a', encoding='utf-8') as file:
+        with open(f'{constants.SAVE_FILE_NAME}.txt', 'a', encoding='utf-8') as file:
             file.write(f"\n{note.date},{note.attribute},{note.value}")
         file.close()
         self.__notes.append(note)
