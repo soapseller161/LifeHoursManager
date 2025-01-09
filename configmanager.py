@@ -16,7 +16,7 @@ class ConfigManager:
         if not os.path.exists(save_file_path):
             print(f"Config file does not exist. Creating one...")
             file = open(save_file_path, 'w', encoding='utf-8')
-            file.write("<str attribute>, <int weekly norm>")
+            file.write("<str attribute>, <int weekly norm>; No empty lines in file.")
             file.close()
 
         try:

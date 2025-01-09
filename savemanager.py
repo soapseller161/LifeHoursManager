@@ -16,7 +16,7 @@ class SaveManager:
         if not os.path.exists(save_file_path):
             print(f"Save file does not exist. Creating one...")
             file = open(f'{constants.SAVE_FILE_NAME}.txt', 'w', encoding='utf-8')
-            file.write("YYYY-MM-DD, <str attribute>, <int value>, <str note>")
+            file.write("YYYY-MM-DD, <str attribute>, <int value>, <str note>; No empty lines in file.")
             file.close()
 
         try:
@@ -79,7 +79,7 @@ class SaveManager:
             attribute_sum = 0
             notes_count = 0
 
-            for note in self.get_attribute_notes(attribute=attribute, timedelta_in_days=weekday):
+            for note in self.get_attribute_notes(attribute=attribute.name, timedelta_in_days=weekday):
                 attribute_sum += note.value
                 notes_count += 1
 
